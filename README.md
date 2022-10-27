@@ -43,21 +43,44 @@ for sampleid1 in whole_samp:
 gene_1 = gene[sampleinter]
 gene_1
 ```
-## filter geneids that have coefficients
+## filter geneids that already have coefficients (based on the formula on the [paper](https://www.nature.com/articles/ncomms9570#MOESM435))
 ```
 import pandas as pd
 #read geneid-coefficient file
 co = pd.read_csv(file_path)
 co = co.loc[:, ~co.columns.str.contains('^Unnamed')]
 #there are duplicate geneids with different coefficient, only keep the first row
-print(co['geneid'].nunique())
 co = co.drop_duplicates(subset='geneid', keep="first")
-co
+#dict with key is geneid and value is its coefficient
 codict = {key:value for key, value in zip(co['geneid'], co['factor'])}
-codict
+sub_gene = gene_1.loc[gene_1['Description'].isin(co['geneid'])]
+sub_gene
 ```
+## calculate predicted age (based on the formula on the [paper](https://www.nature.com/articles/ncomms9570#MOESM435))
+```
+import numpy
+dict_age = {}
+for col in subgene.columns[1:-1]:
+  a = subgene[col].to_numpy()
+  b = subgene['factor'].to_numpy()
+  age = numpy.dot(subgene[col].to_numpy(), subgene['factor'].to_numpy())
+  dict_age[col[0:-14]] = age
+age = pd.DataFrame(dict_age.items(), columns = ['SUBJID', 'PredictedAge'])
+#open Subject phenotypes file (for real age of subject)
+real_age = pd.read_csv('https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS.txt', delimiter = "\t")
+agedict = {key:value for key, value in zip(real_age['SUBJID'], real_age['AGE'])}
+age['RealAge'] = age['SUBJID'].apply(lambda g: agedict[g])
+age
+```
+## draw boxplot
+```
+import numpy as np 
+import pandas as pd 
+import matplotlib.pyplot as plt 
 
-
+age.boxplot(by ='RealAge', column = 'PredictedAge', grid = False)
+plt.savefig('Boxplot(755 samples)')
+```
 
 
 
