@@ -5,8 +5,61 @@ The dataset using in this project is from the open access database on GTEx Porta
 - Subject phenotypes: https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SubjectPhenotypesDS.txt  
 
 ## convert gene expression .gct file to DataFrame
+- using the convertgct file
+```
+import pandas as pd
+with open(file_path, 'r') as f:
+  lines = f.readlines()
+cols = lines[2].split()
+raw_df = {col: [] for col in cols}
+for idx, row in enumerate(lines[3:]):
+  cells = row.split()
+  if len(cells) < 17384:
+    continue
+  for i, col in enumerate(cols):
+    raw_df[col].append(cells[i])
+df = pd.DataFrame(raw_df)
+df.to_csv(file_path_to_save)
+```
+
 ## filter only whole blood sample IDs
-- find all whole blood sampld IDs in Sample attribute file, column 'SMTSD'  
+- find all whole blood sampld IDs in Sample attribute file where column 'SMTSD' = 'Whole Blood'
+
+```
+import pandas as pd
+df = pd.read_csv('https://storage.googleapis.com/gtex_analysis_v8/annotations/GTEx_Analysis_v8_Annotations_SampleAttributesDS.txt', delimiter = "\t")
+blood_df = df.loc[df['SMTSD'] == "Whole Blood"] 
+whole_samp = blood_df['SAMPID'] #list that contains whole blood sample ids
+```
+
+- filter whole blood sample ids in the gene expression file
+```
+exp_samp = gene.columns
+sampleinter = ['Description']
+for sampleid1 in whole_samp:
+  for sampleid2 in exp_samp:
+    if sampleid1 == sampleid2:
+      sampleinter.append(sampleid1)
+gene_1 = gene[sampleinter]
+gene_1
+```
+## filter geneids that have coefficients
+```
+import pandas as pd
+#read geneid-coefficient file
+co = pd.read_csv(file_path)
+co = co.loc[:, ~co.columns.str.contains('^Unnamed')]
+#there are duplicate geneids with different coefficient, only keep the first row
+print(co['geneid'].nunique())
+co = co.drop_duplicates(subset='geneid', keep="first")
+co
+codict = {key:value for key, value in zip(co['geneid'], co['factor'])}
+codict
+```
+
+
+
+
 
 
 
