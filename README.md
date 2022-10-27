@@ -34,12 +34,12 @@ whole_samp = blood_df['SAMPID'] #list that contains whole blood sample ids
 
 - filter whole blood sample ids in the gene expression file
 ```
-exp_samp = gene.columns
-sampleinter = ['Description']
-for sampleid1 in whole_samp:
-  for sampleid2 in exp_samp:
-    if sampleid1 == sampleid2:
-      sampleinter.append(sampleid1)
+#filter only the intersected geneIds
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+sampleinter = intersection(whole_samp, exp_samp)
+sampleinter.append('Description')
 gene_1 = gene[sampleinter]
 gene_1
 ```
