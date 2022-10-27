@@ -86,7 +86,7 @@ plt.savefig('Boxplot(755 samples)')
 - Using GTEx Portal v8, we have 56203 gene ids and 755 whole blood samples 
 - The current stats is analyzed based on 11188 intersected gene ids
 
-
+![Boxplot using v8 GTEx Portal](https://github.com/ng-thu-huyen/gene-exp/blob/main/Boxplot(755%20samples).png))
 
 
 
